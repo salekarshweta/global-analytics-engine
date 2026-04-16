@@ -1,8 +1,19 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import random
 
 app = FastAPI()
+
+# This is the "Security Pass" that allows React (Port 5173) 
+# to talk to FastAPI (Port 8000)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
@@ -10,6 +21,7 @@ def read_root():
 
 @app.get("/api/health")
 def get_health():
+    # We simulate data for our global dashboard
     regions = ["Dublin", "New York", "Tokyo"]
     return {
         "status": "Online",
@@ -18,7 +30,6 @@ def get_health():
             for r in regions
         ]
     }
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
