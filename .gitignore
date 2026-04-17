@@ -1,0 +1,24 @@
+# IDEs and System files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+Thumbs.db
+
+# Environments
+venv/
+env/
+.env
+__pycache__/
+*.pyc
+
+# Node / Frontend
+node_modules/
+dist/
+.eslintcache
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
