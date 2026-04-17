@@ -1,53 +1,70 @@
-# Global Analytics Engine 
-A high-performance distributed system dashboard designed to visualize network latency across global regions. Built as a part of an intensive **7-day portfolio sprint**.
+Global Analytics Engine: Site Reliability Dashboard
+A high-performance, real-time distributed system monitor designed to visualize network latency across global regions. This project demonstrates the "Four Golden Signals" of SRE—Latency, Traffic, Errors, and Saturation—built during an intensive 7-day SRE portfolio sprint.
 
-##  The 7-Day Roadmap
-- [x] **Day 1:** Project Architecture & Backend Foundation (Python/FastAPI)
-- [x] **Day 2:** React Frontend & Full-Stack Bridge (CORS & Axios)
-- [ ] **Day 3:** Data Visualization (Live Recharts & UI/UX Polish)
-- [ ] **Day 4:** Azure Cloud Infrastructure & Containerization
-- [ ] **Day 5:** Multi-Region Deployment & Traffic Manager
-- [ ] **Day 6:** Edge Optimization & Performance Tuning
-- [ ] **Day 7:** Final Presentation & Documentation
+The 7-Day Roadmap
+[x] Day 1: Backend Systems Design (FastAPI, Virtualization, & Latency Logic)
 
----
+[x] Day 2: Full-Stack Integration (CORS, Axios, & State Management)
 
-## Log: Day 2 - The Full-Stack Bridge
-Today, I successfully connected the Python "Brain" to the React "Face" of the application.
-* **The "Bridge" (CORS):** Implemented Cross-Origin Resource Sharing in FastAPI to allow the React frontend to securely talk to the backend.
-* **Data Flow:** Established the first API connection using `axios` to fetch real-time latency data.
-* **Dynamic UI:** Created an interactive card-based dashboard that updates latency stats for Dublin, New York, and Tokyo.
+[x] Day 3: Observability & Data Visualization (Real-time Recharts & Dockerization)
 
-##  Log: Day 1 - Backend Foundation
-The first day focused on setting up the core engine and the development environment.
-* **API Development:** Built a RESTful API using **FastAPI** to handle regional health checks.
-* **Environment Setup:** Configured a Python Virtual Environment (`venv`) to keep dependencies isolated and professional.
-* **Data Simulation:** Wrote a logic layer to simulate global network latency fluctuations for testing purposes.
+[ ] Day 4: Cloud Instrumentation & Health Checks (Kubernetes Standards)
 
----
+[ ] Day 5: Multi-Region Infrastructure (Traffic Management & Load Balancing)
 
-## Tech Stack
-- **Backend:** Python (FastAPI, Uvicorn)
-- **Frontend:** React (Vite, Axios, Lucide-React)
-- **DevOps:** Git, GitHub
-- **Cloud (Planned):** Azure
+[ ] Day 6: Chaos Engineering (Fault Injection & Resilience Testing)
 
-## API Endpoints
-- `GET /`: Basic health check.
-- `GET /api/health`: Returns simulated global latency data.
+[ ] Day 7: Incident Post-Mortem & Documentation
 
----
+Day 3 - Observability & Containerization
+Shifted focus from raw data to Actionable Insights.
 
-## How to Run Locally
-### 1. Backend Setup
-```powershell
+Real-time Visualization: Implemented Recharts to track latency trends over a sliding 45-second window, enabling pattern recognition in network spikes.
+
+Containerization: Architected a Multi-stage Dockerfile. This ensures a lightweight production image (Python slim) by separating the build environment (Node.js) from the runtime environment.
+
+Theming & UX: Refined the UI to support System-level Dark Mode and added conditional status indicators (Red-lining latency above 150ms) to simulate SRE alerts.
+
+Log: Day 2 - The Full-Stack Bridge
+CORS Middleware: Secured the API handshake between the FastAPI "Brain" and the React "Face."
+
+Stateful Polling: Established a 3000ms heartbeat interval to simulate real-time stream processing without taxing system resources.
+
+Log: Day 1 - Backend Foundation
+RESTful Engineering: Built a modular API using FastAPI designed for low-overhead data serving.
+
+Virtualization: Standardized the dev environment using venv to ensure reproducible builds.
+
+Tech Stack
+Backend: Python 3.11, FastAPI (Asynchronous API)
+
+Frontend: React, Vite, Tailwind CSS v4, Recharts
+
+Icons: Lucide-React
+
+DevOps/SRE: Docker (Multi-stage), Git, GitHub
+
+Cloud (Planned): Azure / Google Cloud Platform (GCP)
+
+Systems Instrumentation (API)
+GET /: Root health check.
+
+GET /api/health: Returns structured JSON containing regional latency metrics for Dublin, New York, and Tokyo.
+
+Local Development
+
+1. Build the Engine (Backend)
+
 cd backend
 .\venv\Scripts\activate
 python main.py
-```
 
-### 2. Frontend Setup
-```powershell
+2. Build the UI (Frontend)
+
 cd frontend
+npm install
 npm run dev
-```
+
+3. Build the Container (Production)
+
+docker build -t analytics-engine .
