@@ -91,9 +91,14 @@ async def healthz():
     return {"status": "ok"}
 
 #The "Home Page" Route
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 @app.get("/")
 async def read_index():
-    return FileResponse(os.path.join("static", "index.html"))
+    index_path = os.path.join(BASE_DIR, "static", "index.html")
+    if not os.path.exists(index_path):
+        return {"error": f"Index file not found at {index_path}. Check your Docker build!"}
+    return FileResponse(index_path) 
 
 # THE MOUNT LINE 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "static"), html=True), name="static")
