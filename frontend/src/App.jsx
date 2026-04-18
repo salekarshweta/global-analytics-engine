@@ -10,7 +10,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/health");
+        const response = await axios.get("/api/health");
         
         // --- DATA RE-WIRING ---
         // We transform the nested API data into a format the Chart & Cards can use
