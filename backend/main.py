@@ -1,7 +1,10 @@
 import random
 import time
+import os
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Global Analytics Engine - SRE Edition")
 
@@ -86,3 +89,11 @@ async def get_global_health():
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok"}
+
+#The "Home Page" Route
+@app.get("/")
+async def read_index():
+    return FileResponse(os.path.join("static", "index.html"))
+
+# THE MOUNT LINE 
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
