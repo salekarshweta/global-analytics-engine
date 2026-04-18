@@ -3,99 +3,79 @@ import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, Globe, RefreshCw } from 'lucide-react';
 
-function App() {
-  const [currentStats, setCurrentStats] = useState({});
-  const [dataHistory, setDataHistory] = useState([]);
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('http://127.0.0.1:8000/api/health');
-      const newDataPoint = {
-        time: new Date().toLocaleTimeString().split(' ')[0],
-        ...response.data.latency_ms
-      };
-      setCurrentStats(response.data.latency_ms);
-      setDataHistory(prev => [...prev, newDataPoint].slice(-15));
-    } catch (error) {
-      console.error("API Connection Error:", error);
-    }
-  };
+function App() {
+  const [stats, setStats] = useState([]);
 
   useEffect(() => {
-    fetchData();
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/health");
+        
+        // --- DATA RE-WIRING ---
+        // We transform the nested API data into a format the Chart & Cards can use
+        const processedData = response.data.map(item => ({
+          name: item.region,
+          latency: item.metrics.latency,
+          traffic: item.metrics.traffic,
+          saturation: item.metrics.saturation,
+          prediction: item.prediction, // "stable", "unstable", or "degraded_risk"
+          timestamp: new Date().toLocaleTimeString()
+        }));
+
+        setStats(processedData);
+      } catch (error) {
+        console.error("Inbound Telemetry Error:", error);
+      }
+    };
+
     const interval = setInterval(fetchData, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 text-gray-800">
-      <div className="max-w-6xl mx-auto">
-        
-        {/* HEADER */}
-        <header className="flex items-center gap-4 mb-10">
-          <Activity className="text-blue-600 w-10 h-10" />
-          <h1 className="text-4xl font-bold tracking-tight">Global Latency Monitor</h1>
-        </header>
-
-        {/* STATS CARDS - With explicit styling for high-end look */}
-<div style={{ 
-  display: 'grid', 
-  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-  gap: '1.5rem', 
-  marginBottom: '2.5rem' 
-}}>
-  {currentStats && Object.keys(currentStats).length > 0 ? (
-    Object.entries(currentStats).map(([city, value]) => (
-      <div key={city} style={{
-        backgroundColor: 'white',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #f1f5f9',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        minHeight: '140px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
-          <Globe size={20} color="#3b82f6" />
-          <span style={{ fontWeight: 'bold', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '1px' }}>{city}</span>
-        </div>
-        <div style={{ 
-          fontSize: '36px', 
-          fontFamily: 'monospace', 
-          fontWeight: '900', 
-          textAlign: 'right',
-          color: value > 150 ? '#ef4444' : '#2563eb' 
-        }}>
-          {value}<span style={{ fontSize: '14px', marginLeft: '4px', color: '#94a3b8', fontFamily: 'sans-serif' }}>ms</span>
-        </div>
+    <div className="p-8 bg-gray-900 min-h-screen text-white font-sans">
+      <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2"><span className="text-blue-500">
+          Global Infrastructure NOC</span>
+        </h1>
+      
+      {/* REGIONAL STATUS GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {stats.map((region) => (
+          <div key={region.name} className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold"><span className="text-gray-400">{region.name}</span></h2>
+              {/* --- INTELLIGENCE BADGE --- */}
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                region.prediction === 'stable' ? 'bg-green-900 text-green-400' : 
+                region.prediction === 'unstable' ? 'bg-yellow-900 text-yellow-400' :
+                'bg-red-900 text-red-400 animate-pulse'
+              }`}>
+                {region.prediction}
+              </span>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-gray-400">Latency: <span className="text-white font-mono">{region.latency}ms</span></p>
+              <p className="text-gray-400">Traffic: <span className="text-white font-mono">{region.traffic} RPS</span></p>
+              <p className="text-gray-400">Saturation: <span className="text-white font-mono">{(region.saturation * 100).toFixed(0)}%</span></p>
+            </div>
+          </div>
+        ))}
       </div>
-    ))
-  ) : (
-    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '16px', border: '2px dashed #e2e8f0' }}>
-       <RefreshCw className="animate-spin" style={{ margin: '0 auto 10px', color: '#3b82f6' }} />
-       <p>Syncing with Global Edge Nodes...</p>
-    </div>
-  )}
-</div>
 
-        {/* TREND CHART */}
-        <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100" style={{ height: '450px' }}>
-          <h2 className="text-lg font-bold mb-6 text-gray-700">Real-Time Performance Trends</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={dataHistory}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-              <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} tickMargin={10} minTickGap={50} />
-              <YAxis stroke="#94a3b8" fontSize={12} unit="ms" />
-              <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-              <Line type="monotone" dataKey="Dublin" stroke="#2563eb" strokeWidth={4} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="New York" stroke="#db2777" strokeWidth={4} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="Tokyo" stroke="#10b981" strokeWidth={4} dot={false} isAnimationActive={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
+      {/* CHART SECTION */}
+      <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+        <h3 className="text-lg font-semibold mb-4 text-gray-300">Real-time Latency Stream (ms)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={stats}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="name" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} />
+            <Line type="monotone" dataKey="latency" stroke="#3B82F6" strokeWidth={3} dot={{ r: 6 }} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
