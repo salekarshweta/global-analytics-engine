@@ -8,13 +8,26 @@ The 7-Day Roadmap
 
 [x] Day 3: Observability & Data Visualization (Real-time Recharts & Dockerization)
 
-[ ] Day 4: Cloud Instrumentation & Health Checks (Kubernetes Standards)
+[x] Day 4: Cloud Instrumentation & Health Checks (Kubernetes Standards)
 
 [ ] Day 5: Multi-Region Infrastructure (Traffic Management & Load Balancing)
 
 [ ] Day 6: Chaos Engineering (Fault Injection & Resilience Testing)
 
 [ ] Day 7: Incident Post-Mortem & Documentation
+
+
+Log: Day 4 - Cloud Instrumentation & Production Deployment
+Shifted the engine from "Localhost" to a Globally Accessible Cloud Environment.
+
+Production Handshake: Resolved critical "Not Found" routing issues by re-architecting the FastAPI mount sequence, ensuring the backend correctly serves React static assets from the root path.
+
+Container Registry (ACR): Automated the build-and-push pipeline using Azure Container Registry, leveraging cloud-side Docker builds to minimize local resource strain.
+
+Environmental Hardening: Managed sensitive production credentials and internal port mapping (WEBSITES_PORT=8000) through Azure App Service environment variables to ensure secure, isolated communication.
+
+Health Checks: Implemented a /healthz endpoint to satisfy load balancer probes and ensure zero-downtime container recycling.
+
 
 Day 3 - Observability & Containerization
 Shifted focus from raw data to Actionable Insights.
@@ -38,18 +51,20 @@ Virtualization: Standardized the dev environment using venv to ensure reproducib
 Tech Stack
 Backend: Python 3.11, FastAPI (Asynchronous API)
 
-Frontend: React, Vite, Tailwind CSS v4, Recharts
+Frontend: React, Vite, Tailwind CSS, Recharts
 
-Icons: Lucide-React
+Icons: Lucide-React (Contextual System Status Icons)
 
-DevOps/SRE: Docker (Multi-stage), Git, GitHub
+DevOps/SRE: Docker (Multi-stage), Azure Container Registry (ACR), Azure App Service
 
-Cloud (Planned): Azure / Google Cloud Platform (GCP)
+Cloud Infrastructure: Microsoft Azure
 
 Systems Instrumentation (API)
-GET /: Root health check.
+GET /: Serves the production-built React frontend.
 
-GET /api/health: Returns structured JSON containing regional latency metrics for Dublin, New York, and Tokyo.
+GET /healthz: Heartbeat endpoint for cloud health monitoring.
+
+GET /api/health: Returns structured telemetry (Latency, Traffic, Errors, Saturation) for global regions.
 
 Local Development
 
@@ -68,3 +83,11 @@ npm run dev
 3. Build the Container (Production)
 
 docker build -t analytics-engine .
+
+Production Deployment (Azure CLI)
+
+Build the image in the cloud
+az acr build --registry <RegistryName> --image global-noc:v1 .
+
+Set environment variables for the Web App
+az webapp config appsettings set --name <AppName> --settings WEBSITES_PORT=8000
