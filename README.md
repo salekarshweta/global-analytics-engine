@@ -14,16 +14,31 @@ The 7-Day Roadmap
 
 [x] Day 6: Chaos Engineering (Fault Injection & Resilience Testing)
 
-[ ] Day 7: Incident Post-Mortem & Documentation
+[x] Day 7: Incident Post-Mortem & Documentation
+
+
+Day 7: Incident Post-Mortem 
+
+Incident: Regional Service Degradation (Simulated)
+Duration: 15 Minutes
+Impact: Tokyo and New York nodes were taken offline to test global failover.
+
+Analysis
+- Detection: Front Door Health Probes identified 5xx responses from the Tokyo/NY endpoints within 30 seconds.
+- Mitigation: Traffic was automatically re-routed to the Dublin node via Anycast networking. 
+- User Experience: Zero downtime. The Global Entry point remained active, though latency increased slightly for Asian/American users due to cross-continental routing to Europe.
+- Resolution: Re-provisioned regional nodes and verified health check recovery.
+
+Root Cause Analysis (RCA)
+The outage was a "Chaos Test" to verify that the **Global Analytics Engine** adheres to High Availability (HA) standards.
 
 
 Log: Day 6 - Chaos Engineering & Fault Tolerance
-**Objective:** Prove system "High Availability" by simulating a catastrophic regional failure.
+Objective: Prove system "High Availability" by simulating a catastrophic regional failure.
 
 - Fault Injection: Manually decommissioned the "Tokyo" and "New York" nodes using the Azure CLI ('az webapp stop') to simulate a multi-region power outage.
 - Failover Verification: Validated that the **Azure Front Door** health probes (configured on Day 5) successfully detected the 5xx/Connection Refused errors and automatically rerouted 100% of global traffic to the surviving "Dublin" node.
 - Observability in Crisis: Instrumented the dashboard to reflect "Critical" states when regional health pings fail, demonstrating the transition from a "Steady State" to an "Incident State" without user-facing downtime.
-
 
 
 Log: Day 5 - Multi-Region Infrastructure & Global Load Balancing
@@ -115,3 +130,5 @@ az afd profile create --profile-name global-dispatch --sku Standard_AzureFrontDo
 
 Check Global Endpoint Status
 az afd endpoint show --profile-name global-dispatch --query "hostName"
+
+
