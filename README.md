@@ -10,11 +10,29 @@ The 7-Day Roadmap
 
 [x] Day 4: Cloud Instrumentation & Health Checks (Kubernetes Standards)
 
-[ ] Day 5: Multi-Region Infrastructure (Traffic Management & Load Balancing)
+[x] Day 5: Multi-Region Infrastructure (Traffic Management & Load Balancing)
 
-[ ] Day 6: Chaos Engineering (Fault Injection & Resilience Testing)
+[x] Day 6: Chaos Engineering (Fault Injection & Resilience Testing)
 
 [ ] Day 7: Incident Post-Mortem & Documentation
+
+
+Log: Day 6 - Chaos Engineering & Fault Tolerance
+**Objective:** Prove system "High Availability" by simulating a catastrophic regional failure.
+
+- Fault Injection: Manually decommissioned the "Tokyo" and "New York" nodes using the Azure CLI ('az webapp stop') to simulate a multi-region power outage.
+- Failover Verification: Validated that the **Azure Front Door** health probes (configured on Day 5) successfully detected the 5xx/Connection Refused errors and automatically rerouted 100% of global traffic to the surviving "Dublin" node.
+- Observability in Crisis: Instrumented the dashboard to reflect "Critical" states when regional health pings fail, demonstrating the transition from a "Steady State" to an "Incident State" without user-facing downtime.
+
+
+
+Log: Day 5 - Multi-Region Infrastructure & Global Load Balancing
+Objective: Scale the engine from a single-point-of-failure to a globally distributed fleet.
+
+- Horizontal Scaling: Scaled the architecture to three strategic regions (Dublin, New York, Tokyo) using an Azure App Service Fleet on a shared Linux plan to optimize cost-to-performance.
+- Global Entry Point: Implemented Azure Front Door (Standard Tier). This replaced individual regional URLs with a single, globally optimized Anycast entry point.
+- Intelligent Routing: Configured "Latency-Based Routing" and "Health Probes" ('/healthz'). The system now automatically pings all three regions every 30 seconds to ensure traffic is only sent to "Healthy" origins.
+- Modern Networking: Pivoted from deprecated Front Door Classic to the modern 'az afd' resource set, implementing Origin Groups and Route-linking via the CLI.
 
 
 Log: Day 4 - Cloud Instrumentation & Production Deployment
@@ -91,3 +109,9 @@ az acr build --registry <RegistryName> --image global-noc:v1 .
 
 Set environment variables for the Web App
 az webapp config appsettings set --name <AppName> --settings WEBSITES_PORT=8000
+
+Deploy the Load Balancer (Front Door)
+az afd profile create --profile-name global-dispatch --sku Standard_AzureFrontDoor
+
+Check Global Endpoint Status
+az afd endpoint show --profile-name global-dispatch --query "hostName"
